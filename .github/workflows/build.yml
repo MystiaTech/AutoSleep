@@ -1,19 +1,23 @@
-name: Build Mod
+name: Build and Release
 
 on:
   push:
     branches: [main]
     tags:
-      - "v*"
+      - "v*.*.*"
   pull_request:
     branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -26,40 +30,62 @@ jobs:
       - name: Build Mono
         run: dotnet build -c Mono
 
-      - name: Upload IL2CPP Build
+      - name: Upload IL2CPP artifact
         uses: actions/upload-artifact@v4
         with:
           name: EasierSleep-IL2CPP
           path: bin/IL2CPP/net6.0/EasierSleep.dll
+          retention-days: 90
 
-      - name: Upload Mono Build
+      - name: Upload Mono artifact
         uses: actions/upload-artifact@v4
         with:
           name: EasierSleep-Mono
           path: bin/Mono/net6.0/EasierSleep.dll
+          retention-days: 90
 
-      # Create release if tag pushed
-      - name: Create Release
+      # Only run release step if this is a tag push
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: |
             bin/IL2CPP/net6.0/EasierSleep.dll
             bin/Mono/net6.0/EasierSleep.dll
+          generate_release_notes: true
           body: |
-            ## EasierSleep Mod ${{ github.ref_name }}
+            ## 🌙 EasierSleep ${{ github.ref_name }}
 
-            **Installation:** Copy `EasierSleep.dll` to `Schedule I/Mods/` folder
+            **Percentage-based multiplayer sleep system - no more waiting for AFK players!**
 
-            ### Builds
-            - `EasierSleep.dll` (IL2CPP) - Use this for most installations
-            - `EasierSleep-Mono.dll` - Alternative Mono build
+            ### 📦 Installation
 
-            ### Configuration
+            1. Download `EasierSleep.dll` (IL2CPP build recommended)
+            2. Copy to `Schedule I/Mods/` folder
+            3. Launch the game!
+
+            ### ⚙️ Configuration
+
             Edit `Schedule I/UserData/MelonPreferences.cfg`:
+
             ```ini
             [EasierSleep]
-            SleepThreshold = 75
-            EnableMod = true
-            EnableDebugLogs = true
+            SleepThreshold = 75      # Percentage needed (1-100)
+            EnableMod = true         # Turn mod on/off
+            EnableDebugLogs = true   # Console output
             ```
+
+            ### 📦 Which Build?
+
+            - **EasierSleep.dll** (IL2CPP) - ⭐ **Use this one** for most installations
+            - **EasierSleep-Mono.dll** - Alternative Mono build (if IL2CPP doesn't work)
+
+            ### 📝 Full Changelog
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
+
+            ---
+
+            💝 **Support:** [Open an issue](https://github.com/${{ github.repository }}/issues) • [View source](https://github.com/${{ github.repository }})
+          draft: false
+          prerelease: false
