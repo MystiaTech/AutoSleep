@@ -1,0 +1,31 @@
+# Build outputs
+bin/
+obj/
+
+# IDE/Editor folders
+.vs/
+.vscode/
+.idea/
+
+# Game DLLs (don't commit these!)
+libs/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+
+# Build artifacts
+*.dll
+*.pdb
+*.exe
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Keep the folder structure but not the DLLs
+!libs/.gitkeep
